@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Hues&Cues - Color Palette Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #000;
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #ff7e5f, #feb47b, #86a8e7, #91eae4);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: gradientShift 5s ease infinite;
+            background-size: 300% 300%;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        #app {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto 40px;
+        }
+
+        .card {
+            aspect-ratio: 1;
+            background: #1a1a1a;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeIn 0.6s ease-out forwards;
+            opacity: 0;
+            display: flex;
+            flex-direction: column;
+            max-width: 100%;
+        }
+
+        .card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.1);
+        }
+
+        .color-display {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-repeat: no-repeat;
+
+            background-position: center;
+            background-size: 400% 400%;
+        }
+
+        .color-info {
+            padding: 12px 8px;
+            text-align: center;
+            min-height: 60px;
+        }
+
+        .color-name {
+            text-transform: uppercase;
+            font-weight: 600;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        .secret-mode .color-display {
+            background-color: linear-gradient(90deg, #ff7e5f, #feb47b, #86a8e7, #91eae4);
+            background-size: 400% 400%;
+            animation: gradientMove 10s ease infinite;
+
+        }
+
+        .secret-mode .color-name {
+            visibility: hidden;
+            position: relative;
+        }
+
+        .secret-mode .color-name:after {
+            content: "SECRET";
+            visibility: visible;
+            position: absolute;
+            left: 0;
+            right: 0;
+            text-align: center;
+            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .buttons-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        #button {
+            background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            font-size: 1rem;
+            outline: none;
+             -webkit-tap-highlight-color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(37, 117, 252, 0.4);
+            font-weight: 600;
+        }
+
+        #button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(37, 117, 252, 0.6);
+        }
+
+        #button:active {
+            transform: translateY(1px);
+        }
+
+        #hideButton {
+            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+            color: white;
+            border: none;
+            outline: none;
+             -webkit-tap-highlight-color: transparent;
+            padding: 16px 40px;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 126, 95, 0.4);
+            font-weight: 600;
+        }
+
+        #hideButton:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 126, 95, 0.6);
+        }
+
+        #hideButton:active {
+            transform: translateY(1px);
+        }
+
+        .instructions {
+            margin-top: 30px;
+            text-align: center;
+            max-width: 500px;
+            opacity: 0.8;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        @keyframes gradientMove {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Responsive design */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+
+            #app {
+                gap: 15px;
+            }
+
+            .color-display {
+                height: 100px;
+            }
+
+            #button,
+            #hideButton {
+                padding: 14px 30px;
+                font-size: 0.9rem;
+                width: 380px;
+            }
+        }
+
+        @media (max-width: 480px) {
+
+            #button,
+            #hideButton {
+                width: 280px;
+            }
+
+            #app {
+                gap: 12px;
+                max-width: 320px;
+            }
+
+            .color-info {
+                padding: 8px 4px;
+                min-height: 50px;
+            }
+
+            .color-name {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Оттенки и Намеки</h1>
+        <div class="subtitle">Игра для всей семьи</div>
+    </header>
+
+    <div class="buttons-container">
+        <button id="button">Сгенерировать</button>
+        <button id="hideButton">Спрятать</button>
+    </div>
+
+    <div id="app">
+        <!-- Cards will be generated here -->
+    </div>
+
+    <!-- <div class="instructions">
+        Click the button to generate a new color palette. Each card shows the color, its name, and HEX code.
+    </div> -->
+
+    <script>
+        const palletteElements = []
+        const pallette = []
+        let isSecretMode = false
+        document.addEventListener('DOMContentLoaded', function () {
+            const app = document.getElementById('app')
+            const generateButton = document.getElementById('button')
+            const hideButton = document.getElementById('hideButton')
+
+            // Initial color palette
+            generatePalette()
+
+            // Generate new palette when button is clicked
+            generateButton.addEventListener('click', generatePalette)
+
+            // Toggle secret mode
+            hideButton.addEventListener('click', toggleSecretMode)
+
+            function toggleSecretMode() {
+                isSecretMode = !isSecretMode
+
+                if (isSecretMode) {
+
+                    app.classList.add('secret-mode')
+                    document.querySelectorAll('.secret-mode .color-display').forEach(card => {
+                        card.style.background = 'linear-gradient(90deg, #ff7e5f, #feb47b, #86a8e7, #91eae4)'
+                        card.style.backgroundSize = '400% 400%'
+                        card.style.animation = 'gradientMove 30s ease infinite'
+                    })
+                    hideButton.textContent = 'Показать'
+                    hideButton.style.background = 'linear-gradient(90deg, #86a8e7, #91eae4)'
+                    hideButton.style.boxShadow = '0 5px 15px rgba(134, 168, 231, 0.4)'
+                } else {
+                    let i = 0
+                    document.querySelectorAll('.secret-mode .color-display').forEach(card => {
+                        card.style.backgroundImage = `url('/pieces/piece_${pallette[i]}.jpg')`
+                        i++
+                    })
+
+                    app.classList.remove('secret-mode')
+                    hideButton.textContent = 'Спрятать'
+                    hideButton.style.background = 'linear-gradient(90deg, #ff7e5f, #feb47b)'
+                    hideButton.style.boxShadow = '0 5px 15px rgba(255, 126, 95, 0.4)'
+                }
+            }
+
+            function generatePalette() {
+
+                isSecretMode = false
+                app.classList.remove('secret-mode')
+                hideButton.textContent = 'Спрятать'
+                hideButton.style.background = 'linear-gradient(90deg, #ff7e5f, #feb47b)'
+                hideButton.style.boxShadow = '0 5px 15px rgba(255, 126, 95, 0.4)'
+                // Clear previous cards
+                app.innerHTML = ''
+                palletteElements.length = 0
+                pallette.length = 0
+
+                // Generate 4 cards
+                // Create 4 color cards
+                for (let i = 0; i < 4; i++) {
+                    const colorName = getColorName()
+                    if (pallette.includes(colorName)) {
+                        i--
+                        continue
+                    }
+                    pallette.push(colorName)
+                    const card = document.createElement('div')
+                    card.className = 'card'
+                    let colorDisplay = document.createElement('div')
+                    colorDisplay.className = 'color-display'
+                    colorDisplay.style.backgroundImage = `url('/pieces/piece_${colorName}.jpg')`
+                    palletteElements.push(colorDisplay)
+
+                    card.innerHTML = `
+                        ${colorDisplay.outerHTML}
+                        </div>
+                        <div class="color-info">
+                            <div class="color-name">${colorName}</div>                            
+                        </div>
+                    `
+
+                    app.appendChild(card)
+                }
+            }
+
+            function getColorName() {
+                const letters = 'ABCDEFGHIJKLMNOP'
+                const letter = letters[Math.floor(Math.random() * letters.length)]
+                const number = Math.floor(Math.random() * 30) + 1
+                return letter + number
+            }
+        });
+    </script>
+</body>
+
+</html>
